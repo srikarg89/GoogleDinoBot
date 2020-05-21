@@ -1,6 +1,6 @@
 from obstacle import Obstacle
 import time
-
+import numpy as np
 # Manually comment this if display is False
 import pygame
 
@@ -12,8 +12,11 @@ class Environment:
         self.display = display
         self.dino = dino
         #Min speed, max speed, speed increment, and speed increment interval
-        self.speed_data = (2,5,0.1,500)
-        self.obstacle_rate = 75
+#        self.speed_data = (8,100,1,100)
+        slowest = self.width / 16
+        fastest = self.width / 5
+        self.speed_data = (slowest,fastest,10,100)
+        self.obstacle_rate = 20
         self.reset()
     
     def reset(self):
@@ -35,29 +38,29 @@ class Environment:
             self.surface.fill(self.white)
             self.dino.draw(self.surface)        
         if self.check_collision():
-#            print('Score: ', str(self.score))
+            print('Score: ', str(self.score))
             self.game_over = True
         self.score += 1
 
         if self.score % self.speed_data[3] == 0:
-            self.speed += self.speed_data[2]
-            self.speed = max(self.speed, self.speed_data[1])
+            self.speed += self.speed_data[2]            
+            self.speed = min(self.speed, self.speed_data[1])
         
         if self.score % self.obstacle_rate == 0:
             self.obstacles.append(Obstacle(self.width, self.height, self.display))
 
-        for obs in self.obstacles:
-            obs.update(self.speed)
+        length = len(self.obstacles)
+        count = 0
+        i = 0
+        while i < len(self.obstacles):
+            obs = self.obstacles[i]
             if obs.x + obs.width <= 0:
                 self.obstacles.remove(obs)
-            else:
-                obs.update(self.speed)
+                continue
             if self.display:
                 obs.draw(self.surface)
+            i += 1
 #        print(self.score, self.obstacles)
-
-    def get_state(self):
-        return None
 
     def run(self):
         if self.display:
@@ -66,8 +69,7 @@ class Environment:
             clock = pygame.time.Clock()
         keypressed = False
         while not self.game_over:
-            state = self.get_state()
-            action = self.dino.choose_action(state)
+            action = self.dino.choose_action(self)
             if action == None:
                 self.game_over = True
                 break
@@ -76,7 +78,7 @@ class Environment:
             self.update()
             if self.display:
                 pygame.display.update()
-                clock.tick(30)
+                clock.tick(15)
             if self.game_over:
                 break
         print("Score", self.score)
@@ -89,6 +91,5 @@ class Environment:
                 continue
             if dino.y + dino.height < obs.y or dino.y > obs.y + obs.height:
                 continue
-            print("COLLISION")
             return True
         return False

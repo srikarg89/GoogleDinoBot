@@ -4,11 +4,14 @@ import pygame
 class Dino(ABC):
 
     def __init__(self, x, game_height, display):
-        self.width = 30
+        self.width = 70
         self.height = 70
         self.game_height = game_height
         self.x = x
-        self.g = 1.5
+#        self.g = 0.8
+#        self.jump_v = 15
+        self.g = 9.1
+        self.jump_v = 50.2
         self.reset()
         if display:
             self.color = pygame.Color(0,255,0)
@@ -20,7 +23,7 @@ class Dino(ABC):
 
     def jump(self):
         self.is_jumping = True
-        self.v = 20
+        self.v = self.jump_v
     
     def update(self, action):
         if self.is_jumping:

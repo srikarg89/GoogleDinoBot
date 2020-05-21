@@ -6,7 +6,7 @@ class Human(Dino):
     def __init__(self, x, game_height):
         super().__init__(x, game_height, True)
     
-    def choose_action(self, state):
+    def choose_action(self, env):
         if self.is_jumping:
             return 0
         for event in pygame.event.get():
